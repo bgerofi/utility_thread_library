@@ -56,7 +56,7 @@ char *addr_to_lib(void *addr, unsigned long *offset_in_lib)
 	}
 
 	memset(path, 0, sizeof(path));
-	while (fscanf(fp, "%012lx-%012lx %4s %lx %lx:%lx %d\t\t\t%[^\n]",
+	while (fscanf(fp, "%012lx-%012lx %4s %lx %lx:%lx %d%[^\n]",
 				(unsigned long *)&start,
 				(unsigned long *)&end,
 				perms, &offset, &dev[0], &dev[1], &inode, path) != EOF) {
@@ -65,7 +65,8 @@ char *addr_to_lib(void *addr, unsigned long *offset_in_lib)
 			fclose(fp);
 			if (offset_in_lib)
 				*offset_in_lib = (unsigned long)(addr - start);
-			return strlen(path) > 0 ? strdup(path) : NULL;
+			return strlen(path) > 0 ?
+				strdup(&path[strspn(path, " \t")]) : NULL;
 		}
 
 		memset(path, 0, sizeof(path));
